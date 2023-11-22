@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+
+# Other
+*.vs
+*.x64
+LaboDE*
+execution*
+x64/Release/vc143.pdb
