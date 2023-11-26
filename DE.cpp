@@ -133,9 +133,11 @@ void InitialisationDomaineVariable(tProblem &unProb)
 {
 	switch(unProb.Fonction)
 	{
-		case ALPINE:	unProb.Xmin = -10.0;	unProb.Xmax = 10.0;	unProb.D = 50; break;
-		case SPHERE:	unProb.Xmin = -5.12;	unProb.Xmax = 5.12; unProb.D = 50; break;
-		default:		unProb.Xmin = 0.0;		unProb.Xmax = 0.0;	unProb.D = 0; break; 
+		case ALPINE:		unProb.Xmin = -10.0;	unProb.Xmax = 10.0;	unProb.D = 50; break;
+		case SPHERE:		unProb.Xmin = -5.12;	unProb.Xmax = 5.12; unProb.D = 50; break;
+		case EGGHOLDER:		unProb.Xmin = -512.0;	unProb.Xmax = 512.0; unProb.D = 2; break;
+		case ROSENBROCK:	unProb.Xmin = -10.0;	unProb.Xmax = 10.0;	unProb.D = 10; break;
+		default:			unProb.Xmin = 0.0;		unProb.Xmax = 0.0;	unProb.D = 0; break; 
 	}
 }
 
@@ -163,6 +165,17 @@ void EvaluationSolution(tSolution &Sol, tProblem unProb, tAlgoDE &unDE)
 			}
 			break;
 
+		case EGGHOLDER:
+			valeur = -(Sol.X[1] + 47) * sin(sqrt(fabs(Sol.X[1] + (Sol.X[0] / 2) + 47))) - Sol.X[0] * sin(sqrt(fabs(Sol.X[0] - (Sol.X[1] + 47))));
+			break;
+
+		case ROSENBROCK:
+			for (d = 0; d < unProb.D - 1; d++)
+			{
+				valeur += 100 * pow((Sol.X[d + 1] - pow(Sol.X[d], 2)), 2) + pow(Sol.X[d] - 1, 2);
+			}
+			break;
+
 		default: valeur = FLT_MAX;
 	}
 	//Ne pas enlever/modifier
@@ -176,7 +189,7 @@ void EvaluationSolution(tSolution &Sol, tProblem unProb, tAlgoDE &unDE)
 //unMutant-Vecteur mutant qui sera produit et retourné, unProb-Définition du probleme, unDE-Définition de l'algorithme
 void Mutation(std::vector<tSolution> unePop, int iTarget, int iBest, tSolution &unMutant, tProblem unProb, tAlgoDE unDE)
 {
-	int R1, R2, R3,			//indices des solutions choisies aléatoirement
+	int R1, R2, R3,	R4, R5,		//indices des solutions choisies aléatoirement
 		d;				
 
 	/**********************************************************************************************************************************************/
@@ -193,8 +206,19 @@ void Mutation(std::vector<tSolution> unePop, int iTarget, int iBest, tSolution &
 				unMutant.X[d] = unePop[R1].X[d] + unDE.F * (unePop[R2].X[d] - unePop[R3].X[d]);
 			break;
 		case RAND2:	//le vecteur mutant est crée en ajoutant 2 perturbations à l'aide de 5 solutions choisies aléatoirement (2 différences pondérées)
+			do R1 = rand() % unDE.NP; while (R1 == iTarget);
+			do R2 = rand() % unDE.NP; while (R2 == iTarget || R2 == R1);
+			do R3 = rand() % unDE.NP; while (R3 == iTarget || R3 == R1 || R3 == R2);
+			do R4 = rand() % unDE.NP; while (R4 == iTarget || R4 == R1 || R4 == R2 || R4 == R3);
+			do R5 = rand() % unDE.NP; while (R5 == iTarget || R5 == R1 || R5 == R2 || R5 == R3 || R5 == R4);
+			for (d = 0; d < unProb.D; d++)
+				unMutant.X[d] = unePop[R1].X[d] + unDE.F * (unePop[R2].X[d] - unePop[R3].X[d]) + unDE.F * (unePop[R4].X[d] - unePop[R5].X[d]);
 			break;
 		case BEST1: //le vecteur mutant est créé en ajoutant une perturbation à Best à travers 1 différence pondérée de solutions sélectionnées aléatoirement
+			do R2 = rand() % unDE.NP; while (R2 == iTarget);
+			do R3 = rand() % unDE.NP; while (R3 == iTarget || R3 == R2);
+			for (d = 0; d < unProb.D; d++)
+				unMutant.X[d] = unePop[iBest].X[d] + unDE.F * (unePop[R2].X[d] - unePop[R3].X[d]);
 			break;
 	}
 	//Confinement d'intervalle pour chaque dimension de la solution
