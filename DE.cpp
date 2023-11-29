@@ -68,11 +68,12 @@ int main(int NbParam, char *Param[])
 	srand((unsigned)time(NULL));							//**Precise un germe pour le generateur aleatoire
 	cout.setf(ios::fixed | ios::showpoint);
 
-	//**Choix de la stratégie de mutation/croisement
-	LeDE.TypeMut = RAND1;									//**Spécifie le type de Mutation (sélection solutions + #perturbations) - Voir Entete.h
-	LeDE.TypeCr = EXP;										//**Spécifie le type de croisement  - Voir Entete.h
-	
 	for ( int prob = ALPINE; prob <= ROSENBROCK; prob++) {
+		//**Choix de la stratégie de mutation/croisement
+		LeDE.TypeMut = BEST1;									//**Spécifie le type de Mutation (sélection solutions + #perturbations) - Voir Entete.h
+		LeDE.TypeCr = BIN;										//**Spécifie le type de croisement  - Voir Entete.h
+		LeDE.Iter = 0;
+		LeDE.CptEval = 0;
 		//**Spécifications du problème à traiter
 		LeProb.Fonction = static_cast<eProb>(prob);								//**Spécifie le problème traité  - Voir Entete.h
 		InitialisationDomaineVariable(LeProb);
@@ -245,7 +246,7 @@ void Croisement(tSolution unTarget, tSolution unMutant, tSolution &unTrial, tPro
 	{
 			case BIN:	//Croisement de type binomial (ou uniform)
 				unTrial = unTarget;  //Copie du vecteur cible dans le vecteur essai
-				for (int j = 0; unTrial.X.size(); j++) {
+				for (int j = 0; j<=unTrial.X.size(); j++) {
 					int jrand = AleaDouble(0, unProb.D - 1);
 					Alea = AleaDouble(0, 1);
 					if (jrand == j || Alea <= unDE.CR) {
