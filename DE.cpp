@@ -72,58 +72,61 @@ int main(int NbParam, char *Param[])
 	LeDE.TypeMut = RAND1;									//**Spécifie le type de Mutation (sélection solutions + #perturbations) - Voir Entete.h
 	LeDE.TypeCr = EXP;										//**Spécifie le type de croisement  - Voir Entete.h
 	
-	//**Spécifications du problème à traiter
-	LeProb.Fonction = ALPINE;								//**Spécifie le problème traité  - Voir Entete.h
-	InitialisationDomaineVariable(LeProb);
+	for ( int prob = ALPINE; prob <= ROSENBROCK; prob++) {
+		//**Spécifications du problème à traiter
+		LeProb.Fonction = static_cast<eProb>(prob);								//**Spécifie le problème traité  - Voir Entete.h
+		InitialisationDomaineVariable(LeProb);
 
-	//**Dimension du vecteur de la population, initialisation des solutions avec des valeurs entre Xmin et Xmax
-	InitialisationPopulation(Pop, LeProb, LeDE);			//**NB: Pop est un vecteur de 0 à NP - 1
-	//**Evaluation des solutions et conservation de la meilleure solution
-	for (i = 0; i < LeDE.NP; i++)
-	{
-		EvaluationSolution(Pop[i], LeProb, LeDE);
-		//Conservation de la meilleure solution initiale
-		if (i == 0)
-			NoBest = i;
-		else
-			if (Pop[i].FctObj <= Pop[NoBest].FctObj)
-				NoBest = i;
-	}
-
-	//Dimension des vecteurs: mutant et essai
-	Mutant.X.resize(LeProb.D);
-	Trial.X.resize(LeProb.D);								
-	
-	//AfficherSolutions(Pop, 0, LeDE.NP, LeDE.Iter, LeProb);
-	AfficherUneSolution(Pop[NoBest], LeDE.Iter, LeProb, false);
-
-	//**Boucle principale de l'algorithme
-	while (LeDE.CptEval < LeDE.NB_EVAL_MAX) 	//**NE PAS ENLEVER/MODIFIER LA CONDITION SUR LE NOMBRE D'ÉVALUATION
-	{
-		LeDE.Iter++;
-		
+		//**Dimension du vecteur de la population, initialisation des solutions avec des valeurs entre Xmin et Xmax
+		InitialisationPopulation(Pop, LeProb, LeDE);			//**NB: Pop est un vecteur de 0 à NP - 1
+		//**Evaluation des solutions et conservation de la meilleure solution
 		for (i = 0; i < LeDE.NP; i++)
 		{
-			//**MUTATION: Création du vecteur mutant
-			Mutation(Pop, i, NoBest, Mutant, LeProb, LeDE);
-
-			//**CROISEMENT: Création du vecteur trial (essai)
-			Croisement(Pop[i], Mutant, Trial, LeProb, LeDE);
-
-			//**SELECTION: entre le vecteur target(cible) et le vecteur trial (essai)
-			Selection(Pop[i], i, Trial, Pop[NoBest], NoBest, LeProb, LeDE);
+			EvaluationSolution(Pop[i], LeProb, LeDE);
+			//Conservation de la meilleure solution initiale
+			if (i == 0)
+				NoBest = i;
+			else
+				if (Pop[i].FctObj <= Pop[NoBest].FctObj)
+					NoBest = i;
 		}
+
+		//Dimension des vecteurs: mutant et essai
+		Mutant.X.resize(LeProb.D);
+		Trial.X.resize(LeProb.D);
 
 		//AfficherSolutions(Pop, 0, LeDE.NP, LeDE.Iter, LeProb);
 		AfficherUneSolution(Pop[NoBest], LeDE.Iter, LeProb, false);
-	};
 
-	AfficherResultats(Pop[NoBest], LeProb, LeDE);		//**NE PAS ENLEVER
-	AfficherResultatsFichier(Pop[NoBest], LeProb, LeDE, "Resultats.txt");
+		//**Boucle principale de l'algorithme
+		while (LeDE.CptEval < LeDE.NB_EVAL_MAX) 	//**NE PAS ENLEVER/MODIFIER LA CONDITION SUR LE NOMBRE D'ÉVALUATION
+		{
+			LeDE.Iter++;
+
+			for (i = 0; i < LeDE.NP; i++)
+			{
+				//**MUTATION: Création du vecteur mutant
+				Mutation(Pop, i, NoBest, Mutant, LeProb, LeDE);
+
+				//**CROISEMENT: Création du vecteur trial (essai)
+				Croisement(Pop[i], Mutant, Trial, LeProb, LeDE);
+
+				//**SELECTION: entre le vecteur target(cible) et le vecteur trial (essai)
+				Selection(Pop[i], i, Trial, Pop[NoBest], NoBest, LeProb, LeDE);
+			}
+
+			//AfficherSolutions(Pop, 0, LeDE.NP, LeDE.Iter, LeProb);
+			AfficherUneSolution(Pop[NoBest], LeDE.Iter, LeProb, false);
+		};
+
+		AfficherResultats(Pop[NoBest], LeProb, LeDE);		//**NE PAS ENLEVER
+		AfficherResultatsFichier(Pop[NoBest], LeProb, LeDE, "Resultats.txt");
+
+		LibererMemoireFinPgm(Pop, LeProb, LeDE);
+
+		system("PAUSE");
+	}
 	
-	LibererMemoireFinPgm(Pop, LeProb, LeDE);
-
-	system("PAUSE");
 	return 0;
 }
 
