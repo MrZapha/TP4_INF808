@@ -70,10 +70,11 @@ int main(int NbParam, char *Param[])
 	srand((unsigned)time(NULL));							//**Precise un germe pour le generateur aleatoire
 	cout.setf(ios::fixed | ios::showpoint);
 
-	for ( int prob = ALPINE; prob <= ROSENBROCK; prob++) {
+	//**Itération sur chaque type de fonction pour évaluer les 4 en une execution du programme
+	for (int prob = ALPINE; prob <= ROSENBROCK; prob++) {
 		//**Choix de la stratégie de mutation/croisement
-		LeDE.TypeMut = RAND1;									//**Spécifie le type de Mutation (sélection solutions + #perturbations) - Voir Entete.h
-		LeDE.TypeCr = BIN;										//**Spécifie le type de croisement  - Voir Entete.h
+		LeDE.TypeMut = BEST1;									//**Spécifie le type de Mutation (sélection solutions + #perturbations) - Voir Entete.h
+		LeDE.TypeCr = EXP;										//**Spécifie le type de croisement  - Voir Entete.h
 		LeDE.Iter = 0;
 		LeDE.CptEval = 0;
 		//**Spécifications du problème à traiter
@@ -125,13 +126,13 @@ int main(int NbParam, char *Param[])
 		AfficherResultats(Pop[NoBest], LeProb, LeDE);		//**NE PAS ENLEVER
 		AfficherResultatsFichier(Pop[NoBest], LeProb, LeDE, "Resultats.txt");
 
-		ResultatInCSV(Pop[NoBest], LeProb, LeDE, "Rand1binD50bis.csv", LeProb.Fonction==ALPINE);
+		// Sauvegarde du résultat de chaque fonction dans un fichier CSV, le nom importe peu.
+		//ResultatInCSV(Pop[NoBest], LeProb, LeDE, "Best1expD100.csv", LeProb.Fonction == ALPINE); 
 
 		LibererMemoireFinPgm(Pop, LeProb, LeDE);
 
 		system("PAUSE");
 
-		
 	}
 	
 	return 0;
@@ -279,6 +280,10 @@ void Croisement(tSolution unTarget, tSolution unMutant, tSolution &unTrial, tPro
 	EvaluationSolution(unTrial, unProb, unDE);
 }
 
+//**-----------------------------------------------------------------------
+//RESULTATINCSV: Envoi du résultat du programme dans un fichier CSV passé en flux I/O
+//PARAMETRES: uneBest-Meilleure solution trouvée, unProb-Définition du probleme, unDE-Définition de l'algorithme,
+//FileName-Le nom du fichier CSV, debLigne-Indique si c'est le début de la ligne du CSV
 void ResultatInCSV(tSolution uneBest, tProblem unProb, tAlgoDE unDE, std::string FileName,bool debLigne) {
 	ofstream monFlux;
 	monFlux.open(FileName.c_str(), ios::app);
