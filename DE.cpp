@@ -1,4 +1,5 @@
 #include "Entete.h"
+#include <fstream>
 #pragma comment (lib,"EvoDiffDLL.lib")  
 //%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTANT: %%%%%%%%%%%%%%%%%%%%%%%%% 
 //Les fichiers de la DLL (DiffEvolutionDLL.dll et DiffEvolutionDLL.lib) doivent se trouver dans le même répertoire que l'exécutable (.exe) et 
@@ -44,6 +45,7 @@ void InitialisationDomaineVariable(tProblem &unProb);
 void EvaluationSolution(tSolution &Sol, tProblem unProb, tAlgoDE &unDE);
 void Mutation(std::vector<tSolution> unePop, int iTarget, int iBest, tSolution &unMutant, tProblem unProb, tAlgoDE unDE);
 void Croisement(tSolution unTarget, tSolution unMutant, tSolution &unTrial, tProblem unProb, tAlgoDE &unDE);
+void ResultatInCSV(tSolution uneBest, tProblem unProb, tAlgoDE unDE, std::string FileName, bool debLigne);
 
 //******************************************************************************************
 // Fonction main
@@ -70,7 +72,7 @@ int main(int NbParam, char *Param[])
 
 	for ( int prob = ALPINE; prob <= ROSENBROCK; prob++) {
 		//**Choix de la stratégie de mutation/croisement
-		LeDE.TypeMut = BEST1;									//**Spécifie le type de Mutation (sélection solutions + #perturbations) - Voir Entete.h
+		LeDE.TypeMut = RAND1;									//**Spécifie le type de Mutation (sélection solutions + #perturbations) - Voir Entete.h
 		LeDE.TypeCr = BIN;										//**Spécifie le type de croisement  - Voir Entete.h
 		LeDE.Iter = 0;
 		LeDE.CptEval = 0;
@@ -123,9 +125,13 @@ int main(int NbParam, char *Param[])
 		AfficherResultats(Pop[NoBest], LeProb, LeDE);		//**NE PAS ENLEVER
 		AfficherResultatsFichier(Pop[NoBest], LeProb, LeDE, "Resultats.txt");
 
+		ResultatInCSV(Pop[NoBest], LeProb, LeDE, "Rand1binD50.csv", LeProb.Fonction==ALPINE);
+
 		LibererMemoireFinPgm(Pop, LeProb, LeDE);
 
-		system("PAUSE");
+		//system("PAUSE");
+
+		
 	}
 	
 	return 0;
@@ -271,4 +277,20 @@ void Croisement(tSolution unTarget, tSolution unMutant, tSolution &unTrial, tPro
 
 	//Evaluation de la fonction objectif - Ne pas enlever
 	EvaluationSolution(unTrial, unProb, unDE);
+}
+
+void ResultatInCSV(tSolution uneBest, tProblem unProb, tAlgoDE unDE, std::string FileName,bool debLigne) {
+	ofstream monFlux;
+	monFlux.open(FileName.c_str(), ios::app);
+
+	if (monFlux)
+	{
+		if (debLigne) {
+			monFlux << endl << unDE.NP << ";" << unDE.CR  << ";" << unDE.F << ";";
+		}
+
+		monFlux << uneBest.FctObj << ";";
+	}
+
+	monFlux.close();
 }
