@@ -125,11 +125,11 @@ int main(int NbParam, char *Param[])
 		AfficherResultats(Pop[NoBest], LeProb, LeDE);		//**NE PAS ENLEVER
 		AfficherResultatsFichier(Pop[NoBest], LeProb, LeDE, "Resultats.txt");
 
-		ResultatInCSV(Pop[NoBest], LeProb, LeDE, "Rand1binD50.csv", LeProb.Fonction==ALPINE);
+		ResultatInCSV(Pop[NoBest], LeProb, LeDE, "Rand1binD50bis.csv", LeProb.Fonction==ALPINE);
 
 		LibererMemoireFinPgm(Pop, LeProb, LeDE);
 
-		//system("PAUSE");
+		system("PAUSE");
 
 		
 	}
@@ -289,7 +289,7 @@ void ResultatInCSV(tSolution uneBest, tProblem unProb, tAlgoDE unDE, std::string
 			monFlux << endl << unDE.NP << ";" << unDE.CR  << ";" << unDE.F << ";";
 		}
 
-		monFlux << uneBest.FctObj << ";";
+		monFlux << std::fixed << std::setprecision(6) << uneBest.FctObj << ";";
 	}
 
 	monFlux.close();
