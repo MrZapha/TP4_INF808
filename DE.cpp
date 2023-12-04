@@ -127,11 +127,11 @@ int main(int NbParam, char *Param[])
 		AfficherResultatsFichier(Pop[NoBest], LeProb, LeDE, "Resultats.txt");
 
 		// Sauvegarde du résultat de chaque fonction dans un fichier CSV, le nom importe peu.
-		//ResultatInCSV(Pop[NoBest], LeProb, LeDE, "Best1expD100.csv", LeProb.Fonction == ALPINE); 
+		ResultatInCSV(Pop[NoBest], LeProb, LeDE, "Best1expD50.csv", LeProb.Fonction == ALPINE); 
 
 		LibererMemoireFinPgm(Pop, LeProb, LeDE);
 
-		system("PAUSE");
+		//system("PAUSE");
 
 	}
 	
